@@ -17,7 +17,7 @@ def check_arch(arch):
     '''
     Checks for support of the desired architecture
     '''
-    list_models = {'vgg13', 'vgg11', 'vgg19'}
+    list_models = {'vgg13', 'vgg11', 'resnet152', 'densenet161'}
     if not arch in list_models:
         raise argparse.ArgumentTypeError('{} is not in the supported architectures -> {}'.format(arch, list_models))
     return arch
@@ -47,10 +47,12 @@ def get_model(arch):
     Gets a model depending on the parameter
     '''
     model = None
-    if arch == 'vgg19':
-        model = models.vgg19(pretrained=True)
+    if arch == 'resnet152':
+        model = models.resnet152(pretrained=True)
     elif arch == 'vgg13':
         model = models.vgg13(pretrained=True)
+    elif arch == 'densenet161':
+        model = models.densenet161(pretrained=True)
     else:
         model = models.vgg11(pretrained=True)
     return model
@@ -125,6 +127,6 @@ def get_category_names(category_file):
     ''' Create a json object that contains label number to flower name
     '''
     if not is_file(category_file) or not category_file.endswith(".json"):
-        raise parser.error("Make sure your category names file exist and has a .json extension")
+        raise Exception("Make sure your category names file exist and has a .json extension")
     with open('cat_to_name.json', 'r') as f:
         return json.load(f)

@@ -68,14 +68,27 @@ imageloaders = {'train': torch.utils.data.DataLoader(datasets['train'], batch_si
 model = util.get_model(arch_name)
 for param in model.parameters():
     param.requires_grad = False
-classifier = nn.Sequential(nn.Linear(25088, hidden_units),
+
+if "densenet" in arch_name:
+    start_inputs = 2208
+elif "resnet" in arch_name:
+    start_inputs = 2048
+else:
+    start_inputs = 25088
+
+outputs = 102
+classifier = nn.Sequential(nn.Linear(start_inputs, hidden_units),
                            nn.ReLU(),
                            nn.Dropout(p=0.2),
-                           nn.Linear(hidden_units, 102),
+                           nn.Linear(hidden_units, outputs),
                            nn.LogSoftmax(dim=1))
-optimizer = None
-model.classifier = classifier
-optimizier = optim.Adam(model.classifier.parameters(), lr=learning_rate)
+    
+if "resnet" in arch_name:
+    model.fc = classifier
+    optimizier = optim.Adam(model.fc.parameters(), lr=learning_rate)
+else:
+    model.classifier = classifier
+    optimizier = optim.Adam(model.classifier.parameters(), lr=learning_rate)
 criterion = nn.NLLLoss()
 model.to(device)
 
